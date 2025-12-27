@@ -388,8 +388,12 @@ const scrapEquipment = async (req, res, next) => {
           : equipment.description,
       },
       include: {
-        category: true,
-        department: true,
+        category: { select: { id: true, name: true } },
+        department: { select: { id: true, name: true } },
+        owner: { select: { id: true, name: true, email: true } },
+        technician: { select: { id: true, name: true, email: true } },
+        maintenanceTeam: { select: { id: true, name: true } },
+        workCenter: { select: { id: true, name: true } },
       },
     });
 

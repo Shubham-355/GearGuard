@@ -15,6 +15,9 @@ router.get('/cards', dashboardController.getDashboardCards);
 // Recent activity
 router.get('/activity', dashboardController.getRecentActivity);
 
+// Notifications
+router.get('/notifications', dashboardController.getNotifications);
+
 // Reports
 router.get('/reports/requests-by-team', dashboardController.getRequestsByTeam);
 router.get('/reports/requests-by-category', dashboardController.getRequestsByCategory);
