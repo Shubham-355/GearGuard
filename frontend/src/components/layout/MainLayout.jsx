@@ -24,7 +24,7 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 import { getNavItems, ROLE_LABELS } from '../../config/constants';
-import { Avatar, Dropdown, DropdownItem, DropdownDivider } from '../ui';
+import { Avatar, Dropdown, DropdownItem, DropdownDivider, ChatBot } from '../ui';
 import { dashboardAPI } from '../../services/api';
 
 const iconMap = {
@@ -388,6 +388,9 @@ export function MainLayout({ children }) {
       <main className="max-w-[1920px] mx-auto p-4 lg:p-6">
         {children}
       </main>
+
+      {/* Chatbot */}
+      <ChatBot />
     </div>
   );
 }

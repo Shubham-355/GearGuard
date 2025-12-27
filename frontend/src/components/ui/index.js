@@ -12,3 +12,4 @@ export { SearchInput } from './SearchInput';
 export { Pagination } from './Pagination';
 export { Dropdown, DropdownItem, DropdownDivider } from './Dropdown';
 export { Tabs } from './Tabs';
+export { ChatBot } from './ChatBot';

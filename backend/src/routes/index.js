@@ -12,6 +12,7 @@ const departmentRoutes = require('./department.routes');
 const workCenterRoutes = require('./workCenter.routes');
 const dashboardRoutes = require('./dashboard.routes');
 const companyRoutes = require('./company.routes');
+const chatRoutes = require('./chat.routes');
 
 // Health check
 router.get('/health', (req, res) => {
@@ -34,5 +35,6 @@ router.use('/departments', departmentRoutes);
 router.use('/work-centers', workCenterRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/company', companyRoutes);
+router.use('/chat', chatRoutes);
 
 module.exports = router;
