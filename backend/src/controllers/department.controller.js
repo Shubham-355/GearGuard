@@ -179,7 +179,20 @@ const deleteDepartment = async (req, res, next) => {
     }
 
     if (department._count.users > 0 || department._count.equipment > 0) {
-      throw ApiError.badRequest('Cannot delete department with assigned users or equipment');
+      const reasons = [];
+      
+      if (department._count.users > 0) {
+        reasons.push(`${department._count.users} user${department._count.users > 1 ? 's' : ''}`);
+      }
+      if (department._count.equipment > 0) {
+        reasons.push(`${department._count.equipment} equipment${department._count.equipment > 1 ? 's' : ''}`);
+      }
+
+      const reasonText = reasons.join(' and ');
+      
+      throw ApiError.badRequest(
+        `Cannot delete department "${department.name}". It has ${reasonText} assigned. Please reassign them first.`
+      );
     }
 
     await prisma.department.delete({

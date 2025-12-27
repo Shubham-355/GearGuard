@@ -10,6 +10,10 @@ const getDashboardSummary = async (req, res, next) => {
   try {
     const companyId = req.user.companyId;
 
+    // Get the first day of current month
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
     // Run all queries in parallel for better performance
     const [
       // Equipment stats
@@ -23,6 +27,9 @@ const getDashboardSummary = async (req, res, next) => {
       overdueRequests,
       newRequests,
       inProgressRequests,
+      completedThisMonth,
+      repairedRequests,
+      scrapRequests,
       
       // User stats
       totalTechnicians,
@@ -67,6 +74,19 @@ const getDashboardSummary = async (req, res, next) => {
       prisma.maintenanceRequest.count({
         where: { companyId, stage: REQUEST_STAGES.IN_PROGRESS },
       }),
+      prisma.maintenanceRequest.count({
+        where: {
+          companyId,
+          stage: REQUEST_STAGES.REPAIRED,
+          completionDate: { gte: startOfMonth },
+        },
+      }),
+      prisma.maintenanceRequest.count({
+        where: { companyId, stage: REQUEST_STAGES.REPAIRED },
+      }),
+      prisma.maintenanceRequest.count({
+        where: { companyId, stage: REQUEST_STAGES.SCRAP },
+      }),
       
       // Users
       prisma.user.count({
@@ -106,6 +126,9 @@ const getDashboardSummary = async (req, res, next) => {
           overdue: overdueRequests,
           new: newRequests,
           inProgress: inProgressRequests,
+          completed: completedThisMonth,
+          repaired: repairedRequests,
+          scrap: scrapRequests,
         },
         technicians: {
           total: totalTechnicians,
@@ -485,6 +508,169 @@ const getMaintenanceTrends = async (req, res, next) => {
   }
 };
 
+/**
+ * Get notifications
+ * GET /api/dashboard/notifications
+ */
+const getNotifications = async (req, res, next) => {
+  try {
+    const companyId = req.user.companyId;
+    const now = new Date();
+    
+    // Get recent critical events for notifications
+    const [
+      overdueRequests,
+      criticalEquipment,
+      newRequests,
+      recentCompletions
+    ] = await Promise.all([
+      // Overdue maintenance requests
+      prisma.maintenanceRequest.findMany({
+        where: {
+          companyId,
+          isOverdue: true,
+          stage: { in: [REQUEST_STAGES.NEW, REQUEST_STAGES.IN_PROGRESS] }
+        },
+        include: {
+          equipment: { select: { name: true } },
+          createdBy: { select: { name: true } }
+        },
+        orderBy: { scheduledDate: 'asc' },
+        take: 5
+      }),
+      
+      // Critical health equipment
+      prisma.equipment.findMany({
+        where: {
+          companyId,
+          healthPercentage: { lt: HEALTH_THRESHOLDS.CRITICAL },
+          status: { not: EQUIPMENT_STATUS.SCRAPPED }
+        },
+        select: { id: true, name: true, healthPercentage: true },
+        orderBy: { healthPercentage: 'asc' },
+        take: 5
+      }),
+      
+      // New requests from last 24 hours
+      prisma.maintenanceRequest.findMany({
+        where: {
+          companyId,
+          stage: REQUEST_STAGES.NEW,
+          createdAt: { gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) }
+        },
+        include: {
+          equipment: { select: { name: true } },
+          createdBy: { select: { name: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 3
+      }),
+      
+      // Recent completions (last 24 hours)
+      prisma.maintenanceRequest.findMany({
+        where: {
+          companyId,
+          stage: REQUEST_STAGES.REPAIRED,
+          completionDate: { gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) }
+        },
+        include: {
+          equipment: { select: { name: true } },
+          technician: { select: { name: true } }
+        },
+        orderBy: { completionDate: 'desc' },
+        take: 3
+      })
+    ]);
+
+    const notifications = [];
+
+    // Add overdue requests notifications
+    overdueRequests.forEach(request => {
+      notifications.push({
+        id: `overdue-${request.id}`,
+        title: 'Overdue Maintenance',
+        message: `${request.equipment?.name || 'Equipment'} maintenance is overdue`,
+        time: formatTimeAgo(request.scheduledDate),
+        type: 'critical',
+        unread: true,
+        link: `/maintenance/requests/${request.id}`
+      });
+    });
+
+    // Add critical equipment notifications
+    criticalEquipment.forEach(equipment => {
+      notifications.push({
+        id: `critical-${equipment.id}`,
+        title: 'Critical Equipment Health',
+        message: `${equipment.name} health dropped to ${equipment.healthPercentage}%`,
+        time: formatTimeAgo(new Date()),
+        type: 'warning',
+        unread: true,
+        link: `/equipment/${equipment.id}`
+      });
+    });
+
+    // Add new requests notifications
+    newRequests.forEach(request => {
+      notifications.push({
+        id: `new-${request.id}`,
+        title: 'New Maintenance Request',
+        message: `${request.equipment?.name || 'Equipment'} needs attention`,
+        time: formatTimeAgo(request.createdAt),
+        type: 'alert',
+        unread: true,
+        link: `/maintenance/requests/${request.id}`
+      });
+    });
+
+    // Add completion notifications
+    recentCompletions.forEach(request => {
+      notifications.push({
+        id: `completed-${request.id}`,
+        title: 'Maintenance Completed',
+        message: `${request.equipment?.name || 'Equipment'} repair completed`,
+        time: formatTimeAgo(request.completionDate),
+        type: 'success',
+        unread: false,
+        link: `/maintenance/requests/${request.id}`
+      });
+    });
+
+    // Sort by most recent first
+    notifications.sort((a, b) => {
+      // Unread first, then by implied timestamp
+      if (a.unread !== b.unread) return b.unread - a.unread;
+      return new Date(b.time) - new Date(a.time);
+    });
+
+    res.json(
+      new ApiResponse(200, { 
+        notifications: notifications.slice(0, 20), // Limit to 20
+        unreadCount: notifications.filter(n => n.unread).length 
+      }, 'Notifications retrieved successfully')
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Helper function to format time ago
+function formatTimeAgo(date) {
+  const now = new Date();
+  const diffMs = now - new Date(date);
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 60) {
+    return diffMins <= 1 ? 'Just now' : `${diffMins} minutes ago`;
+  } else if (diffHours < 24) {
+    return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+  } else {
+    return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+  }
+}
+
 module.exports = {
   getDashboardSummary,
   getDashboardCards,
@@ -493,4 +679,5 @@ module.exports = {
   getRequestsByCategory,
   getEquipmentHealthDistribution,
   getMaintenanceTrends,
+  getNotifications,
 };

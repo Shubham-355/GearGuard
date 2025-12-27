@@ -309,6 +309,52 @@ const deleteUser = async (req, res, next) => {
       }
     }
 
+    // Check for related records
+    const createdRequestsCount = await prisma.maintenanceRequest.count({
+      where: { createdById: id },
+    });
+
+    const assignedRequestsCount = await prisma.maintenanceRequest.count({
+      where: { technicianId: id },
+    });
+
+    const ownedEquipmentCount = await prisma.equipment.count({
+      where: { ownerId: id },
+    });
+
+    const assignedEquipmentCount = await prisma.equipment.count({
+      where: { technicianId: id },
+    });
+
+    if (createdRequestsCount > 0 || assignedRequestsCount > 0 || ownedEquipmentCount > 0 || assignedEquipmentCount > 0) {
+      const reasons = [];
+      
+      if (createdRequestsCount > 0) {
+        reasons.push(`${createdRequestsCount} created maintenance request${createdRequestsCount > 1 ? 's' : ''}`);
+      }
+      if (assignedRequestsCount > 0) {
+        reasons.push(`${assignedRequestsCount} assigned maintenance request${assignedRequestsCount > 1 ? 's' : ''}`);
+      }
+      if (ownedEquipmentCount > 0) {
+        reasons.push(`${ownedEquipmentCount} owned equipment${ownedEquipmentCount > 1 ? 's' : ''}`);
+      }
+      if (assignedEquipmentCount > 0) {
+        reasons.push(`${assignedEquipmentCount} assigned equipment${assignedEquipmentCount > 1 ? 's' : ''}`);
+      }
+
+      const reasonText = reasons.join(', ').replace(/, ([^,]*)$/, ' and $1');
+      
+      throw ApiError.badRequest(
+        `Cannot delete user "${user.name}". They have ${reasonText}. Please reassign or remove these records first.`
+      );
+    }
+
+    // Delete team memberships (has cascade in schema)
+    await prisma.teamMember.deleteMany({
+      where: { userId: id },
+    });
+
+    // Now safe to delete user
     await prisma.user.delete({
       where: { id },
     });
