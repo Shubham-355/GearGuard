@@ -34,7 +34,7 @@ const sendMessage = async (req, res, next) => {
 
     // Generate response from Gemini
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       contents: prompt,
     });
 
@@ -84,7 +84,7 @@ const streamMessage = async (req, res, next) => {
 
     // Generate streaming response from Gemini
     const stream = await ai.models.generateContentStream({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       contents: prompt,
     });
 

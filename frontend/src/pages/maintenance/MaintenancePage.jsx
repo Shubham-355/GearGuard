@@ -42,8 +42,8 @@ export function MaintenancePage() {
     try {
       setLoading(true);
       const params = {};
-      if (activeFilter === 'my') params.assignedToMe = true;
-      if (activeFilter === 'overdue') params.isOverdue = true;
+      if (activeFilter === 'my') params.assignedToMe = 'true';
+      if (activeFilter === 'overdue') params.isOverdue = 'true';
       if (activeFilter === 'preventive') params.requestType = 'PREVENTIVE';
       if (activeFilter === 'corrective') params.requestType = 'CORRECTIVE';
       

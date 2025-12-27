@@ -134,6 +134,7 @@ const getRequests = async (req, res, next) => {
       teamId,
       technicianId,
       createdById,
+      assignedToMe,
       isOverdue: overdueFilter,
       fromDate,
       toDate,
@@ -168,8 +169,15 @@ const getRequests = async (req, res, next) => {
       if (toDate) where.requestDate.lte = new Date(toDate);
     }
 
-    // For technicians, show only their team's requests or assigned to them
-    if (req.user.role === ROLES.TECHNICIAN) {
+    // Handle "My Requests" filter - show requests assigned to the current user or created by them
+    if (assignedToMe === 'true') {
+      where.OR = [
+        { technicianId: req.user.id },
+        { createdById: req.user.id },
+      ];
+    }
+    // For technicians without explicit assignedToMe filter, show only their team's requests or assigned to them
+    else if (req.user.role === ROLES.TECHNICIAN) {
       const userTeamIds = req.user.teamMemberships?.map(tm => tm.teamId) || [];
       where.OR = [
         { technicianId: req.user.id },
