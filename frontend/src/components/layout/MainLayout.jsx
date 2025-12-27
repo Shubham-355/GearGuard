@@ -195,30 +195,30 @@ export function MainLayout({ children }) {
                   <button className="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
                     <Bell className="w-5 h-5 text-gray-600" />
                     {unreadCount > 0 && (
-                      <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center px-1">
+                      <span className="absolute top-1.5 right-1.5 min-w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center px-1">
                         {unreadCount}
                       </span>
                     )}
                   </button>
                 }
               >
-                <div className="w-80">
-                  <div className="px-4 py-3 border-b border-gray-100">
+                <div className="w-96">
+                  <div className="px-4 py-3 border-b border-gray-100 bg-white">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900">Notifications</p>
+                      <p className="text-sm font-semibold text-gray-900">Notifications</p>
                       {unreadCount > 0 && (
-                        <span className="text-xs text-blue-600">{unreadCount} new</span>
+                        <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{unreadCount} new</span>
                       )}
                     </div>
                   </div>
                   <div className="max-h-96 overflow-y-auto">
                     {loadingNotifications ? (
-                      <div className="px-4 py-6 text-center">
+                      <div className="px-4 py-8 text-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
                         <p className="text-sm text-gray-500 mt-2">Loading...</p>
                       </div>
                     ) : notifications.length === 0 ? (
-                      <div className="px-4 py-6 text-center text-gray-500">
+                      <div className="px-4 py-8 text-center text-gray-500">
                         <Bell className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                         <p className="text-sm">No notifications</p>
                       </div>
@@ -227,25 +227,29 @@ export function MainLayout({ children }) {
                         <div
                           key={notification.id}
                           onClick={() => handleNotificationClick(notification)}
-                          className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer ${
-                            notification.unread ? 'bg-blue-50' : ''
+                          className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors ${
+                            notification.unread ? 'bg-blue-50/30' : 'bg-white'
                           }`}
                         >
                           <div className="flex items-start gap-3">
-                            <span className="text-lg mt-0.5">{getNotificationIcon(notification.type)}</span>
+                            <div className="flex-shrink-0 mt-0.5">
+                              {getNotificationIcon(notification.type)}
+                            </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between">
-                                <p className={`text-sm ${notification.unread ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
+                              <div className="flex items-start justify-between gap-2">
+                                <p className={`text-sm leading-snug ${
+                                  notification.unread ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'
+                                }`}>
                                   {notification.title}
                                 </p>
                                 {notification.unread && (
-                                  <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-2"></div>
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full shrink-0 mt-1.5"></div>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                              <p className="text-xs text-gray-600 mt-1 leading-relaxed break-words">
                                 {notification.message}
                               </p>
-                              <p className="text-xs text-gray-500 mt-1">
+                              <p className="text-xs text-gray-500 mt-2">
                                 {notification.time}
                               </p>
                             </div>
@@ -254,10 +258,10 @@ export function MainLayout({ children }) {
                       ))
                     )}
                   </div>
-                  <div className="px-4 py-3 border-t border-gray-100">
+                  <div className="px-4 py-3 border-t border-gray-100 bg-white">
                     <button 
                       onClick={() => navigate('/notifications')}
-                      className="w-full text-center text-sm text-blue-600 hover:text-blue-700"
+                      className="w-full text-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors py-1"
                     >
                       View all notifications
                     </button>

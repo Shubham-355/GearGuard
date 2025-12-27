@@ -41,30 +41,30 @@ export function Dropdown({
       
       {isOpen && (
         <div 
-          className={`absolute z-50 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black/5 ${alignments[align]}`}
+          className={`absolute z-50 mt-2 min-w-56 rounded-lg bg-white shadow-xl ring-1 ring-black/5 overflow-hidden ${alignments[align]}`}
         >
-          <div className="py-1">
-            {items ? (
-              items.map((item, index) => (
+          {items ? (
+            <div className="py-1">
+              {items.map((item, index) => (
                 <button
                   key={index}
                   onClick={() => handleItemClick(item.onClick)}
                   className={`
                     w-full flex items-center px-4 py-2 text-sm text-left
-                    hover:bg-gray-50
+                    hover:bg-gray-50 transition-colors
                     ${item.className || 'text-gray-700'}
                   `}
                 >
                   {item.icon && <item.icon className="w-4 h-4 mr-3" />}
                   {item.label}
                 </button>
-              ))
-            ) : (
-              <div onClick={() => setIsOpen(false)}>
-                {children}
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div onClick={() => setIsOpen(false)}>
+              {children}
+            </div>
+          )}
         </div>
       )}
     </div>

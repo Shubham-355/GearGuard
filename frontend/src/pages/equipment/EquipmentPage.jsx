@@ -182,40 +182,38 @@ export function EquipmentPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col lg:flex-row gap-4 mb-6">
+      <div className="flex flex-col md:flex-row gap-3 mb-6">
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder="Search equipment..."
-          className="lg:w-80"
+          className="md:w-80 flex-shrink-0"
         />
-        <div className="flex flex-wrap gap-3">
-          <Select
-            placeholder="All Categories"
-            value={filters.category}
-            onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-            options={Array.isArray(categories) ? categories.map(c => ({ value: c.id, label: c.name })) : []}
-            className="w-40"
-          />
-          <Select
-            placeholder="All Departments"
-            value={filters.department}
-            onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-            options={Array.isArray(departments) ? departments.map(d => ({ value: d.id, label: d.name })) : []}
-            className="w-40"
-          />
-          <Select
-            placeholder="All Status"
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            options={[
-              { value: 'ACTIVE', label: 'Active' },
-              { value: 'UNDER_MAINTENANCE', label: 'Under Maintenance' },
-              { value: 'SCRAPPED', label: 'Scrapped' },
-            ]}
-            className="w-44"
-          />
-        </div>
+        <Select
+          placeholder="All Categories"
+          value={filters.category}
+          onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+          options={Array.isArray(categories) ? categories.map(c => ({ value: c.id, label: c.name })) : []}
+          className="md:w-48 flex-shrink-0"
+        />
+        <Select
+          placeholder="All Departments"
+          value={filters.department}
+          onChange={(e) => setFilters({ ...filters, department: e.target.value })}
+          options={Array.isArray(departments) ? departments.map(d => ({ value: d.id, label: d.name })) : []}
+          className="md:w-48 flex-shrink-0"
+        />
+        <Select
+          placeholder="All Status"
+          value={filters.status}
+          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+          options={[
+            { value: 'ACTIVE', label: 'Active' },
+            { value: 'UNDER_MAINTENANCE', label: 'Under Maintenance' },
+            { value: 'SCRAPPED', label: 'Scrapped' },
+          ]}
+          className="md:w-52 flex-shrink-0"
+        />
       </div>
 
       {/* Critical Equipment Alert */}

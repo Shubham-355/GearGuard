@@ -382,6 +382,13 @@ const updateStage = async (req, res, next) => {
       if (!existingRequest.technicianId && req.user.role === ROLES.TECHNICIAN) {
         updateData.technicianId = req.user.id;
       }
+      // Set equipment to UNDER_MAINTENANCE
+      if (existingRequest.equipmentId) {
+        await prisma.equipment.update({
+          where: { id: existingRequest.equipmentId },
+          data: { status: EQUIPMENT_STATUS.UNDER_MAINTENANCE },
+        });
+      }
     }
 
     if (stage === REQUEST_STAGES.REPAIRED) {
@@ -392,6 +399,13 @@ const updateStage = async (req, res, next) => {
         const start = existingRequest.startDate;
         const end = new Date();
         updateData.duration = Math.round((end - start) / (1000 * 60 * 60) * 100) / 100;
+      }
+      // Set equipment back to ACTIVE when repaired
+      if (existingRequest.equipmentId) {
+        await prisma.equipment.update({
+          where: { id: existingRequest.equipmentId },
+          data: { status: EQUIPMENT_STATUS.ACTIVE },
+        });
       }
     }
 

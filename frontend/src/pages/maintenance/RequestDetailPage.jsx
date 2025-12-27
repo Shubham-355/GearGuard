@@ -132,29 +132,33 @@ export function RequestDetailPage() {
 
   const handleAssign = async () => {
     try {
-      const techId = canAssignSelf ? user.id : selectedTechnician;
-      await requestsAPI.assign(id, techId);
-      const tech = canAssignSelf ? user : technicians.find(t => t.id === techId);
-      setRequest({ 
-        ...request, 
-        technician: tech,
-        technicianId: techId,
-        stage: request.stage === 'NEW' ? 'IN_PROGRESS' : request.stage
-      });
-      setShowAssignModal(false);
-      toast.success('Technician assigned successfully');
+      if (canAssignSelf) {
+        // Technician picking up request (self-assign)
+        await requestsAPI.selfAssign(id);
+        setRequest({ 
+          ...request, 
+          technician: user,
+          technicianId: user.id,
+          stage: 'IN_PROGRESS'
+        });
+        toast.success('Request assigned to you successfully');
+      } else {
+        // Manager assigning to technician
+        await requestsAPI.assign(id, selectedTechnician);
+        const tech = technicians.find(t => t.id === selectedTechnician);
+        setRequest({ 
+          ...request, 
+          technician: tech,
+          technicianId: selectedTechnician,
+          stage: request.stage === 'NEW' ? 'IN_PROGRESS' : request.stage
+        });
+        setShowAssignModal(false);
+        toast.success('Technician assigned successfully');
+      }
     } catch (error) {
-      toast.error('Failed to assign technician');
-      // Demo update
-      const techId = canAssignSelf ? user.id : selectedTechnician;
-      const tech = canAssignSelf ? user : technicians.find(t => t.id === techId);
-      setRequest({ 
-        ...request, 
-        technician: tech,
-        technicianId: techId,
-        stage: 'IN_PROGRESS'
-      });
-      setShowAssignModal(false);
+      console.error('Assignment error:', error);
+      const errorMsg = error.response?.data?.message || 'Failed to assign technician';
+      toast.error(errorMsg);
     }
   };
 
@@ -270,13 +274,13 @@ export function RequestDetailPage() {
       <Card className="mb-6">
         <CardContent className="py-6">
           <div className="flex items-center justify-between">
-            {['NEW', 'IN_PROGRESS', 'REPAIRED', 'SCRAP'].map((stage, index, arr) => (
+            {['NEW', 'IN_PROGRESS', 'REPAIRED'].map((stage, index, arr) => (
               <div key={stage} className="flex items-center flex-1">
                 <button
                   onClick={() => handleStageChange(stage)}
                   disabled={!canManage && !canAssignSelf}
                   className={`
-                    flex items-center justify-center w-10 h-10 rounded-full font-medium text-sm
+                    flex items-center justify-center w-12 h-12 rounded-full font-medium text-sm
                     transition-colors
                     ${request.stage === stage 
                       ? 'bg-blue-600 text-white' 
@@ -305,7 +309,6 @@ export function RequestDetailPage() {
             <span>New Request</span>
             <span>In Progress</span>
             <span>Repaired</span>
-            <span>Scrap</span>
           </div>
         </CardContent>
       </Card>
@@ -336,8 +339,9 @@ export function RequestDetailPage() {
           </Button>
         )}
         
-        {request.stage === 'REPAIRED' && canManage && (
-          <Button variant="warning" onClick={() => handleStageChange('SCRAP')}>
+        {/* Scrap action available for managers at any stage except already scrapped */}
+        {canManage && request.stage !== 'SCRAP' && (
+          <Button variant="danger" onClick={() => handleStageChange('SCRAP')}>
             <AlertTriangle className="w-4 h-4 mr-2" />
             Move to Scrap
           </Button>
