@@ -266,26 +266,22 @@ export function TeamsPage() {
     <MainLayout>
       {/* Page Header */}
       <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-            <p className="text-gray-500">Manage maintenance teams and members</p>
           </div>
+          <SearchInput
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search teams..."
+            className="lg:max-w-md flex-1"
+          />
           <Button onClick={() => handleOpenModal()}>
             <Plus className="w-4 h-4 mr-2" />
             Add Team
           </Button>
         </div>
       </div>
-
-      {/* Search */}
-      <Card className="mb-6 p-4">
-        <SearchInput
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search teams..."
-        />
-      </Card>
 
       {/* Teams List */}
       {loading ? (

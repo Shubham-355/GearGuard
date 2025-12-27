@@ -170,11 +170,16 @@ export function MaintenancePage() {
     <MainLayout>
       {/* Page Header */}
       <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Maintenance Requests</h1>
-            <p className="text-gray-500">Manage and track all maintenance work</p>
           </div>
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search requests..."
+            className="lg:max-w-md flex-1"
+          />
           <Button onClick={() => navigate('/maintenance/new')}>
             <Plus className="w-4 h-4 mr-2" />
             New Request
@@ -182,16 +187,13 @@ export function MaintenancePage() {
         </div>
       </div>
 
-      {/* Filters & View Toggle */}
-      <div className="flex flex-col lg:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <SearchInput
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Search requests..."
-            className="max-w-md"
-          />
-        </div>
+      {/* Filter Tabs */}
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <Tabs 
+          tabs={filterTabs} 
+          activeTab={activeFilter} 
+          onChange={setActiveFilter} 
+        />
         <div className="flex items-center gap-2">
           <button
             onClick={() => setViewMode('kanban')}
@@ -215,14 +217,6 @@ export function MaintenancePage() {
           </button>
         </div>
       </div>
-
-      {/* Filter Tabs */}
-      <Tabs 
-        tabs={filterTabs} 
-        activeTab={activeFilter} 
-        onChange={setActiveFilter} 
-        className="mb-6"
-      />
 
       {/* Content */}
       {loading ? (

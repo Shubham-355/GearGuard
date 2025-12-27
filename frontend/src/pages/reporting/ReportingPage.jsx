@@ -248,11 +248,10 @@ export function ReportingPage() {
   return (
     <MainLayout>
       {/* Page Header */}
-      <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-            <p className="text-gray-500">Maintenance performance insights</p>
+            <h1 className="text-3xl font-bold text-gray-900">Reports & Analytics</h1>
           </div>
           <div className="flex items-center gap-3">
             <Select
@@ -265,7 +264,7 @@ export function ReportingPage() {
                 { value: '90', label: 'Last 90 days' },
                 { value: '365', label: 'Last year' },
               ]}
-              className="w-40"
+              className="w-44"
             />
             <Button variant="secondary" onClick={handleExport}>
               <Download className="w-4 h-4 mr-2" />
@@ -282,81 +281,89 @@ export function ReportingPage() {
       ) : (
         <>
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card className="p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Total Requests</p>
-                  <p className="text-2xl font-bold text-gray-900">{data.totalRequests}</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Total Requests</p>
+                  <p className="text-3xl font-bold text-gray-900">{data.totalRequests}</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Wrench className="w-6 h-6 text-blue-600" />
+                <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <Wrench className="w-7 h-7 text-blue-600" />
                 </div>
               </div>
             </Card>
 
-            <Card className="p-4">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Completed</p>
-                  <p className="text-2xl font-bold text-green-600">{data.completedRequests}</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Completed</p>
+                  <p className="text-3xl font-bold text-green-600">{data.completedRequests}</p>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
+                  <CheckCircle className="w-7 h-7 text-green-600" />
                 </div>
               </div>
             </Card>
 
-            <Card className="p-4">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Overdue</p>
-                  <p className="text-2xl font-bold text-red-600">{data.overdueRequests}</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Overdue</p>
+                  <p className="text-3xl font-bold text-red-600">{data.overdueRequests}</p>
                 </div>
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                <div className="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center">
+                  <AlertTriangle className="w-7 h-7 text-red-600" />
                 </div>
               </div>
             </Card>
 
-            <Card className="p-4">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-500">Avg Resolution Time</p>
-                  <p className="text-2xl font-bold text-gray-900">{data.avgResolutionTime}h</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Avg Resolution Time</p>
+                  <p className="text-3xl font-bold text-gray-900">{data.avgResolutionTime}h</p>
                 </div>
-                <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-amber-600" />
+                <div className="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center">
+                  <Clock className="w-7 h-7 text-amber-600" />
                 </div>
               </div>
             </Card>
           </div>
 
           {/* Completion Rate */}
-          <Card className="p-6 mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Completion Rate</h3>
+          <Card className="p-6 mb-8 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Completion Rate</h3>
+              <Badge variant="success" className="text-lg px-3 py-1">{completionRate}%</Badge>
+            </div>
             <div className="flex items-center gap-6">
               <div className="flex-1">
-                <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-6 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-green-500 transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-500"
                     style={{ width: `${completionRate}%` }}
                   />
                 </div>
               </div>
-              <div className="text-2xl font-bold text-green-600">{completionRate}%</div>
             </div>
-            <div className="flex items-center gap-6 mt-4 text-sm text-gray-600">
-              <span>{data.completedRequests} completed</span>
-              <span>{data.totalRequests - data.completedRequests} remaining</span>
+            <div className="flex items-center gap-6 mt-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span className="text-gray-600 font-medium">{data.completedRequests} completed</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+                <span className="text-gray-600 font-medium">{data.totalRequests - data.completedRequests} remaining</span>
+              </div>
             </div>
           </Card>
 
           {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
             {/* Requests by Team */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Requests by Team</h3>
                 <Users className="w-5 h-5 text-gray-400" />
               </div>
@@ -364,13 +371,13 @@ export function ReportingPage() {
                 data={data.requestsByTeam}
                 valueKey="count"
                 labelKey="name"
-                colorFn={() => 'bg-blue-500'}
+                colorFn={() => 'bg-gradient-to-r from-blue-500 to-blue-600'}
               />
             </Card>
 
             {/* Requests by Category */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Requests by Category</h3>
                 <BarChart3 className="w-5 h-5 text-gray-400" />
               </div>
@@ -380,71 +387,75 @@ export function ReportingPage() {
                 labelKey="name"
                 colorFn={(item) => {
                   const colors = {
-                    'Preventive': 'bg-purple-500',
-                    'Corrective': 'bg-red-500',
-                    'Emergency': 'bg-amber-500',
-                    'Inspection': 'bg-blue-500',
+                    'Preventive': 'bg-gradient-to-r from-purple-500 to-purple-600',
+                    'Corrective': 'bg-gradient-to-r from-red-500 to-red-600',
+                    'Emergency': 'bg-gradient-to-r from-amber-500 to-amber-600',
+                    'Inspection': 'bg-gradient-to-r from-blue-500 to-blue-600',
                   };
-                  return colors[item.name] || 'bg-gray-500';
+                  return colors[item.name] || 'bg-gradient-to-r from-gray-500 to-gray-600';
                 }}
               />
             </Card>
 
             {/* Requests by Type (Pie) */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Request Types</h3>
                 <TrendingUp className="w-5 h-5 text-gray-400" />
               </div>
-              <PieChartSimple
-                data={data.requestsByType}
-                valueKey="count"
-                labelKey="name"
-                colors={['#8B5CF6', '#EF4444']}
-              />
+              <div className="flex items-center justify-center py-4">
+                <PieChartSimple
+                  data={data.requestsByType}
+                  valueKey="count"
+                  labelKey="name"
+                  colors={['#8B5CF6', '#EF4444']}
+                />
+              </div>
             </Card>
 
             {/* Requests by Stage (Pie) */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Status Distribution</h3>
                 <TrendingUp className="w-5 h-5 text-gray-400" />
               </div>
-              <PieChartSimple
-                data={data.requestsByStage}
-                valueKey="count"
-                labelKey="name"
-                colors={stageColors}
-              />
+              <div className="flex items-center justify-center py-4">
+                <PieChartSimple
+                  data={data.requestsByStage}
+                  valueKey="count"
+                  labelKey="name"
+                  colors={stageColors}
+                />
+              </div>
             </Card>
           </div>
 
           {/* Completion Trend */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Completion Trend</h3>
               <Calendar className="w-5 h-5 text-gray-400" />
             </div>
             <div className="space-y-4">
               {(data.completionTrend || []).map((item, idx) => (
                 <div key={idx} className="flex items-center gap-4">
-                  <div className="w-20 text-sm text-gray-500">{item.date}</div>
-                  <div className="flex-1 flex items-center gap-2">
-                    <div className="flex-1 h-6 bg-gray-100 rounded overflow-hidden flex">
+                  <div className="w-24 text-sm text-gray-600 font-medium">{item.date}</div>
+                  <div className="flex-1 flex items-center gap-3">
+                    <div className="flex-1 h-8 bg-gray-100 rounded-lg overflow-hidden flex">
                       <div
-                        className="h-full bg-green-500"
+                        className="h-full bg-gradient-to-r from-green-500 to-green-600"
                         style={{ 
                           width: `${(item.completed / Math.max(item.completed + item.opened, 1)) * 100}%` 
                         }}
                       />
                       <div
-                        className="h-full bg-blue-500"
+                        className="h-full bg-gradient-to-r from-blue-500 to-blue-600"
                         style={{ 
                           width: `${(item.opened / Math.max(item.completed + item.opened, 1)) * 100}%` 
                         }}
                       />
                     </div>
-                    <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-4 text-sm font-medium min-w-[120px]">
                       <span className="text-green-600">✓ {item.completed}</span>
                       <span className="text-blue-600">+ {item.opened}</span>
                     </div>
@@ -452,14 +463,14 @@ export function ReportingPage() {
                 </div>
               ))}
             </div>
-            <div className="flex items-center gap-6 mt-4 text-sm">
+            <div className="flex items-center gap-6 mt-6 pt-4 border-t border-gray-200 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-500 rounded" />
-                <span className="text-gray-600">Completed</span>
+                <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600 rounded" />
+                <span className="text-gray-600 font-medium">Completed</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-500 rounded" />
-                <span className="text-gray-600">Opened</span>
+                <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded" />
+                <span className="text-gray-600 font-medium">Opened</span>
               </div>
             </div>
           </Card>

@@ -94,7 +94,7 @@ export function KanbanBoard({ groupedRequests, onStageChange, onRequestClick }) 
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex gap-4 overflow-x-auto pb-4 justify-center">
         {stages.map((stage) => (
           <KanbanColumn
             key={stage}

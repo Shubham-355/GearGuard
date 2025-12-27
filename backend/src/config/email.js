@@ -97,6 +97,57 @@ const emailTemplates = {
     `,
   }),
 
+  // User invite email with credentials
+  userInvite: (user, company, password) => ({
+    subject: `Welcome to ${company.name} - Your GearGuard Account`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
+          <h1 style="color: white; margin: 0;">⚙️ GearGuard</h1>
+          <p style="color: rgba(255,255,255,0.9); margin-top: 10px;">The Ultimate Maintenance Tracker</p>
+        </div>
+        <div style="padding: 30px; background: #f9f9f9;">
+          <h2 style="color: #333;">Welcome, ${user.name}! 👋</h2>
+          <p style="color: #666; line-height: 1.6;">
+            Your account has been created at <strong>${company.name}</strong>.
+          </p>
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0 0 15px 0; color: #333;"><strong>Your Login Credentials:</strong></p>
+            <table style="width: 100%;">
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Email:</td>
+                <td style="padding: 8px 0; color: #333; font-weight: 600;">${user.email}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Password:</td>
+                <td style="padding: 8px 0; color: #333;">
+                  <code style="background: #f0f0f0; padding: 8px 12px; border-radius: 4px; font-size: 14px; display: inline-block;">${password}</code>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Role:</td>
+                <td style="padding: 8px 0; color: #333;">${user.role}</td>
+              </tr>
+            </table>
+          </div>
+          <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #856404; font-size: 14px;">
+              <strong>⚠️ Important:</strong> Please change your password after your first login for security.
+            </p>
+          </div>
+          <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" 
+             style="display: block; background: #667eea; color: white; padding: 12px 30px; 
+                    text-decoration: none; border-radius: 5px; text-align: center; margin-top: 20px;">
+            Login to Your Account
+          </a>
+          <p style="color: #999; font-size: 12px; margin-top: 30px; text-align: center;">
+            If you didn't expect this email, please contact your administrator.
+          </p>
+        </div>
+      </div>
+    `,
+  }),
+
   // Invite code email
   inviteCode: (company, inviteCode) => ({
     subject: `Join ${company.name} on GearGuard`,

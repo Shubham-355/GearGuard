@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const prisma = require('../config/database');
 const ApiError = require('../utils/ApiError');
 const ApiResponse = require('../utils/ApiResponse');
-const { getPagination, formatPaginationResponse } = require('../utils/helpers');
+const { getPagination, formatPaginationResponse, generateRandomPassword } = require('../utils/helpers');
 const { ROLES } = require('../config/constants');
 const { sendEmail } = require('../config/email');
 
@@ -42,8 +42,9 @@ const createUser = async (req, res, next) => {
       }
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Generate password if not provided
+    const generatedPassword = password || generateRandomPassword();
+    const hashedPassword = await bcrypt.hash(generatedPassword, 12);
 
     // Create user
     const user = await prisma.user.create({
@@ -63,8 +64,8 @@ const createUser = async (req, res, next) => {
 
     const { password: _, ...userWithoutPassword } = user;
 
-    // Send welcome email
-    sendEmail(user.email, 'welcome', [user, user.company]);
+    // Send user invite email with credentials
+    sendEmail(user.email, 'userInvite', [user, user.company, generatedPassword]);
 
     res.status(201).json(
       new ApiResponse(201, { user: userWithoutPassword }, 'User created successfully')

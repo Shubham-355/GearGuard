@@ -196,26 +196,21 @@ export function WorkCentersPage() {
     <MainLayout>
       {/* Page Header */}
       <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Work Centers</h1>
-            <p className="text-gray-500">Manage production work centers and stations</p>
           </div>
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search work centers..."
+            className="lg:max-w-md flex-1"
+          />
           <Button onClick={() => handleOpenModal()}>
             <Plus className="w-4 h-4 mr-2" />
             Add Work Center
           </Button>
         </div>
-      </div>
-
-      {/* Search */}
-      <div className="mb-6">
-        <SearchInput
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search work centers..."
-          className="max-w-md"
-        />
       </div>
 
       {/* Work Centers List */}

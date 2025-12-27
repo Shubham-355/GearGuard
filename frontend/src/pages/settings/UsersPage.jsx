@@ -47,7 +47,14 @@ export function UsersPage() {
       // Backend returns { data: { data: [...], pagination: {...} } }
       const responseData = response.data.data;
       const usersList = Array.isArray(responseData) ? responseData : (responseData?.data || []);
-      setUsers(usersList);
+      
+      // Transform teamMemberships to team for display
+      const transformedUsers = usersList.map(user => ({
+        ...user,
+        team: user.teamMemberships?.[0]?.team || null
+      }));
+      
+      setUsers(transformedUsers);
     } catch (error) {
       // Mock data
       const mockUsers = [
@@ -228,11 +235,16 @@ export function UsersPage() {
     <MainLayout>
       {/* Page Header */}
       <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-            <p className="text-gray-500">Manage user accounts and permissions</p>
           </div>
+          <SearchInput
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search users..."
+            className="lg:max-w-md flex-1"
+          />
           <Button onClick={() => handleOpenModal()}>
             <Plus className="w-4 h-4 mr-2" />
             Invite User
@@ -241,27 +253,18 @@ export function UsersPage() {
       </div>
 
       {/* Filters */}
-      <Card className="mb-6 p-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <SearchInput
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search users..."
-            />
-          </div>
-          <Select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-48"
-          >
-            <option value="">All Roles</option>
-            {Object.entries(ROLE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </Select>
-        </div>
-      </Card>
+      <div className="flex justify-end mb-6">
+        <Select
+          value={roleFilter}
+          onChange={(e) => setRoleFilter(e.target.value)}
+          placeholder="All Roles"
+          options={Object.entries(ROLE_LABELS).map(([value, label]) => ({ 
+            value, 
+            label 
+          }))}
+          className="w-52"
+        />
+      </div>
 
       {/* Users List */}
       {loading ? (

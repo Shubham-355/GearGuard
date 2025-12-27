@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft, Save } from 'lucide-react';
 import { MainLayout } from '../../components/layout';
@@ -20,6 +20,7 @@ import { useAuthStore } from '../../store/authStore';
 export function RequestFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuthStore();
   const isEdit = Boolean(id);
 
@@ -33,13 +34,13 @@ export function RequestFormPage() {
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
-    requestType: 'CORRECTIVE',
+    requestType: location.state?.requestType || 'CORRECTIVE',
     priority: 'MEDIUM',
     equipmentId: '',
     categoryId: '',
     teamId: '',
     technicianId: '',
-    scheduledDate: '',
+    scheduledDate: location.state?.scheduledDate || '',
     duration: '',
   });
   const [errors, setErrors] = useState({});

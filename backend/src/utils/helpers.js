@@ -15,6 +15,33 @@ const generateInviteCode = (companyName) => {
 };
 
 /**
+ * Generate a random secure password
+ * Length: 12 characters with uppercase, lowercase, numbers, and special chars
+ */
+const generateRandomPassword = () => {
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
+  const special = '!@#$%^&*';
+  const allChars = uppercase + lowercase + numbers + special;
+  
+  let password = '';
+  // Ensure at least one of each type
+  password += uppercase[crypto.randomInt(uppercase.length)];
+  password += lowercase[crypto.randomInt(lowercase.length)];
+  password += numbers[crypto.randomInt(numbers.length)];
+  password += special[crypto.randomInt(special.length)];
+  
+  // Fill the rest randomly
+  for (let i = 4; i < 12; i++) {
+    password += allChars[crypto.randomInt(allChars.length)];
+  }
+  
+  // Shuffle the password
+  return password.split('').sort(() => crypto.randomInt(3) - 1).join('');
+};
+
+/**
  * Validate password strength
  * Requirements: min 8 chars, uppercase, lowercase, special char
  */
@@ -127,6 +154,7 @@ const sanitizeSearchQuery = (query) => {
 
 module.exports = {
   generateInviteCode,
+  generateRandomPassword,
   validatePassword,
   extractEmailDomain,
   isDomainAllowed,

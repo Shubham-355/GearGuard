@@ -24,7 +24,10 @@ import { TeamsPage } from './pages/teams';
 import { ReportingPage } from './pages/reporting';
 
 // Settings
-import { CategoriesPage, DepartmentsPage, UsersPage } from './pages/settings';
+import { SettingsPage, CategoriesPage, DepartmentsPage, UsersPage, CompanyPage } from './pages/settings';
+
+// Profile
+import { ProfilePage } from './pages/profile';
 
 // Notifications
 import { NotificationsPage } from './pages/NotificationsPage';
@@ -203,6 +206,16 @@ function App() {
           }
         />
 
+        {/* Settings - Company */}
+        <Route
+          path="/settings/company"
+          element={
+            <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+              <CompanyPage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Settings - Categories */}
         <Route
           path="/settings/categories"
@@ -229,6 +242,26 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
               <UsersPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Settings - Main page */}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Profile */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

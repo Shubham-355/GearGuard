@@ -169,11 +169,16 @@ export function EquipmentPage() {
     <MainLayout>
       {/* Page Header */}
       <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Machines & Tools</h1>
-            <p className="text-gray-500">Manage all company equipment and assets</p>
           </div>
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search equipment..."
+            className="lg:max-w-md flex-1"
+          />
           <Button onClick={() => navigate('/equipment/new')}>
             <Plus className="w-4 h-4 mr-2" />
             Add Equipment
@@ -182,13 +187,10 @@ export function EquipmentPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-3 mb-6">
-        <SearchInput
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Search equipment..."
-          className="md:w-80 flex-shrink-0"
-        />
+      <div className="flex flex-col md:flex-row justify-end gap-3 mb-6">
+        <div className="flex items-center gap-2 text-gray-600">
+          <Filter className="w-4 h-4" />
+        </div>
         <Select
           placeholder="All Categories"
           value={filters.category}

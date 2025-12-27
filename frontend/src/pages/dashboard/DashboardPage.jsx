@@ -18,7 +18,7 @@ import { format } from 'date-fns';
 import { MainLayout } from '../../components/layout';
 import { Card, CardHeader, CardContent, Badge, Avatar, Button, Spinner } from '../../components/ui';
 import { useAuthStore } from '../../store/authStore';
-import { dashboardAPI } from '../../services/api';
+import { dashboardAPI, requestsAPI } from '../../services/api';
 import { STAGE_LABELS, STAGE_COLORS, PRIORITY_COLORS, USER_ROLES } from '../../config/constants';
 
 // Stat Card Component
@@ -60,7 +60,7 @@ function RequestItem({ request }) {
   return (
     <Link 
       to={`/maintenance/${request.id}`}
-      className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
+      className="flex items-center justify-between py-3 hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
     >
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -116,9 +116,9 @@ export function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsRes, activityRes] = await Promise.all([
+      const [statsRes, requestsRes] = await Promise.all([
         dashboardAPI.getStats(),
-        dashboardAPI.getRecentActivity(),
+        requestsAPI.getAll({ page: 1, limit: 10 }),
       ]);
       
       // Map backend response to match frontend expectations
@@ -138,7 +138,12 @@ export function DashboardPage() {
       };
       
       setStats(mappedStats);
-      setRecentRequests(activityRes.data.data || []);
+      
+      // Extract requests from paginated response
+      const responseData = requestsRes.data.data;
+      const requests = Array.isArray(responseData) ? responseData : (responseData?.data || []);
+      console.log('Recent requests fetched:', requests); // Debug log
+      setRecentRequests(requests);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
       // Set mock data for demo
@@ -176,7 +181,6 @@ export function DashboardPage() {
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-500">Welcome back, {user?.name}!</p>
           </div>
           
           {/* Search Bar in Middle */}
@@ -191,18 +195,17 @@ export function DashboardPage() {
             />
           </div>
 
-          <div className="text-sm text-gray-500 whitespace-nowrap">
-            Last updated: {format(new Date(), 'MMM d, yyyy h:mm a')}
+          <div className="flex items-center gap-3">
+            <div className="text-xs text-gray-500 leading-tight">
+              <div>Last updated:</div>
+              <div>{format(new Date(), 'MMM d, yyyy h:mm a')}</div>
+            </div>
+            <Button onClick={() => navigate('/maintenance/new')} size="sm">
+              <Wrench className="w-3.5 h-3.5 mr-1.5" />
+              New Request
+            </Button>
           </div>
         </div>
-      </div>
-
-      {/* Action Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <Button onClick={() => navigate('/maintenance/new')}>
-          <Wrench className="w-4 h-4 mr-2" />
-          New Request
-        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -284,7 +287,7 @@ export function DashboardPage() {
           <CardContent>
             {recentRequests.length > 0 ? (
               <div className="divide-y divide-gray-100">
-                {recentRequests.slice(0, 5).map((request) => (
+                {recentRequests.slice(0, 10).map((request) => (
                   <RequestItem key={request.id} request={request} />
                 ))}
               </div>

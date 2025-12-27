@@ -18,8 +18,7 @@ const userValidators = {
       .withMessage('Please provide a valid email')
       .normalizeEmail(),
     body('password')
-      .notEmpty()
-      .withMessage('Password is required')
+      .optional()
       .isLength({ min: 8 })
       .withMessage('Password must be at least 8 characters'),
     body('role')

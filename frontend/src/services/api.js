@@ -141,3 +141,9 @@ export const dashboardAPI = {
   getRequestsByCategory: () => api.get('/dashboard/reports/requests-by-category'),
   getNotifications: () => api.get('/dashboard/notifications'),
 };
+
+// Company API
+export const companyAPI = {
+  get: () => api.get('/company'),
+  updateAllowedDomains: (data) => api.put('/company/allowed-domains', data),
+};

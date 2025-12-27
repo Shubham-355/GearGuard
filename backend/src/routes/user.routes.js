@@ -15,13 +15,12 @@ router.get('/technicians', userController.getTechnicians);
 // Get user stats (admin/manager only)
 router.get('/stats', isAdminOrManager, userController.getUserStats);
 
-// CRUD routes
-router.post(
-  '/',
-  isAdminOrManager,
-  userValidators.createUser,
+// Get routes first (more specific before general)
+router.get(
+  '/:id',
+  userValidators.getUserById,
   validate,
-  userController.createUser
+  userController.getUserById
 );
 
 router.get(
@@ -32,11 +31,13 @@ router.get(
   userController.getUsers
 );
 
-router.get(
-  '/:id',
-  userValidators.getUserById,
+// CRUD routes
+router.post(
+  '/',
+  isAdminOrManager,
+  userValidators.createUser,
   validate,
-  userController.getUserById
+  userController.createUser
 );
 
 router.put(
