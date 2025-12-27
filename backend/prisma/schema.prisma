@@ -1,14 +1,319 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  ADMIN
+  MAINTENANCE_MANAGER
+  TECHNICIAN
+  EMPLOYEE
+}
+
+enum RequestType {
+  CORRECTIVE
+  PREVENTIVE
+}
+
+enum RequestStage {
+  NEW
+  IN_PROGRESS
+  REPAIRED
+  SCRAP
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum EquipmentStatus {
+  ACTIVE
+  UNDER_MAINTENANCE
+  SCRAPPED
+}
+
+// ==================== COMPANY ====================
+
+model Company {
+  id                String   @id @default(uuid())
+  name              String
+  allowedDomains    String[] // e.g., ["@acme.com", "@acme.co.in"]
+  inviteCode        String   @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  users             User[]
+  departments       Department[]
+  equipment         Equipment[]
+  equipmentCategories EquipmentCategory[]
+  maintenanceTeams  MaintenanceTeam[]
+  maintenanceRequests MaintenanceRequest[]
+  workCenters       WorkCenter[]
+}
+
+// ==================== USER ====================
+
+model User {
+  id                String    @id @default(uuid())
+  name              String
+  email             String    @unique
+  password          String
+  role              UserRole  @default(EMPLOYEE)
+  avatar            String?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Company relation
+  companyId         String
+  company           Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Department relation (optional)
+  departmentId      String?
+  department        Department? @relation(fields: [departmentId], references: [id])
+
+  // Relations
+  ownedEquipment    Equipment[] @relation("EquipmentOwner")
+  assignedEquipment Equipment[] @relation("EquipmentTechnician")
+  teamMemberships   TeamMember[]
+  createdRequests   MaintenanceRequest[] @relation("RequestCreator")
+  assignedRequests  MaintenanceRequest[] @relation("RequestTechnician")
+
+  @@index([companyId])
+  @@index([email])
+}
+
+// ==================== DEPARTMENT ====================
+
+model Department {
+  id                String   @id @default(uuid())
+  name              String
+  description       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Company relation
+  companyId         String
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Relations
+  users             User[]
+  equipment         Equipment[]
+  equipmentCategories EquipmentCategory[]
+
+  @@unique([name, companyId])
+  @@index([companyId])
+}
+
+// ==================== EQUIPMENT CATEGORY ====================
+
+model EquipmentCategory {
+  id                String   @id @default(uuid())
+  name              String
+  description       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Company relation
+  companyId         String
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Responsible Department
+  responsibleDeptId String?
+  responsibleDept   Department? @relation(fields: [responsibleDeptId], references: [id])
+
+  // Relations
+  equipment         Equipment[]
+  maintenanceRequests MaintenanceRequest[]
+
+  @@unique([name, companyId])
+  @@index([companyId])
+}
+
+// ==================== EQUIPMENT ====================
+
+model Equipment {
+  id                String          @id @default(uuid())
+  name              String
+  serialNumber      String?
+  model             String?
+  purchaseDate      DateTime?
+  warrantyExpiry    DateTime?
+  location          String?
+  description       String?
+  healthPercentage  Int             @default(100) // 0-100
+  status            EquipmentStatus @default(ACTIVE)
+  scrapDate         DateTime?
+  assignedDate      DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // Company relation
+  companyId         String
+  company           Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Category relation
+  categoryId        String?
+  category          EquipmentCategory? @relation(fields: [categoryId], references: [id])
+
+  // Department relation
+  departmentId      String?
+  department        Department?     @relation(fields: [departmentId], references: [id])
+
+  // Owner (Employee who uses this equipment)
+  ownerId           String?
+  owner             User?           @relation("EquipmentOwner", fields: [ownerId], references: [id])
+
+  // Default Technician
+  technicianId      String?
+  technician        User?           @relation("EquipmentTechnician", fields: [technicianId], references: [id])
+
+  // Maintenance Team
+  maintenanceTeamId String?
+  maintenanceTeam   MaintenanceTeam? @relation(fields: [maintenanceTeamId], references: [id])
+
+  // Work Center
+  workCenterId      String?
+  workCenter        WorkCenter?     @relation(fields: [workCenterId], references: [id])
+
+  // Relations
+  maintenanceRequests MaintenanceRequest[]
+
+  @@unique([serialNumber, companyId])
+  @@index([companyId])
+  @@index([status])
+  @@index([healthPercentage])
+}
+
+// ==================== MAINTENANCE TEAM ====================
+
+model MaintenanceTeam {
+  id                String   @id @default(uuid())
+  name              String
+  description       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Company relation
+  companyId         String
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Relations
+  members           TeamMember[]
+  equipment         Equipment[]
+  maintenanceRequests MaintenanceRequest[]
+
+  @@unique([name, companyId])
+  @@index([companyId])
+}
+
+// ==================== TEAM MEMBER ====================
+
+model TeamMember {
+  id                String   @id @default(uuid())
+  isLead            Boolean  @default(false)
+  joinedAt          DateTime @default(now())
+
+  // User relation
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Team relation
+  teamId            String
+  team              MaintenanceTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@index([teamId])
+}
+
+// ==================== MAINTENANCE REQUEST ====================
+
+model MaintenanceRequest {
+  id                String        @id @default(uuid())
+  subject           String
+  description       String?
+  requestType       RequestType   @default(CORRECTIVE)
+  stage             RequestStage  @default(NEW)
+  priority          Priority      @default(MEDIUM)
+  requestDate       DateTime      @default(now())
+  scheduledDate     DateTime?
+  startDate         DateTime?
+  completionDate    DateTime?
+  duration          Float?        // Hours spent
+  notes             String?
+  isOverdue         Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Company relation
+  companyId         String
+  company           Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Equipment relation
+  equipmentId       String?
+  equipment         Equipment?    @relation(fields: [equipmentId], references: [id])
+
+  // Category relation (auto-filled from equipment)
+  categoryId        String?
+  category          EquipmentCategory? @relation(fields: [categoryId], references: [id])
+
+  // Team relation (auto-filled from equipment)
+  teamId            String?
+  team              MaintenanceTeam? @relation(fields: [teamId], references: [id])
+
+  // Creator
+  createdById       String
+  createdBy         User          @relation("RequestCreator", fields: [createdById], references: [id])
+
+  // Assigned Technician
+  technicianId      String?
+  technician        User?         @relation("RequestTechnician", fields: [technicianId], references: [id])
+
+  @@index([companyId])
+  @@index([stage])
+  @@index([requestType])
+  @@index([scheduledDate])
+  @@index([isOverdue])
+}
+
+// ==================== WORK CENTER ====================
+
+model WorkCenter {
+  id                    String   @id @default(uuid())
+  name                  String
+  code                  String?
+  tag                   String?
+  costPerHour           Float    @default(0)
+  capacityTimeEfficiency Float   @default(100) // Percentage
+  oeeTarget             Float    @default(85)  // Overall Equipment Effectiveness Target (%)
+  description           String?
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Company relation
+  companyId             String
+  company               Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Alternative Work Center (self-reference)
+  alternativeWorkCenterId String?
+  alternativeWorkCenter   WorkCenter?  @relation("AlternativeWorkCenter", fields: [alternativeWorkCenterId], references: [id])
+  alternativeFor          WorkCenter[] @relation("AlternativeWorkCenter")
+
+  // Relations
+  equipment             Equipment[]
+
+  @@unique([code, companyId])
+  @@index([companyId])
 }
